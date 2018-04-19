@@ -65,22 +65,22 @@ public class jobscheduler {
 	
 
 	public static int getTimeStamp(String line){//get time stamp by using regular expression
-		String pattern = "(\\d+)";
+	    String pattern = "(\\d+)";
 	    Pattern r = Pattern.compile(pattern); 
 	    Matcher m = r.matcher(line);
 	    m.find();
 	    int timeStamp  = Integer.parseInt(m.group(0));
-		return timeStamp;
+	    return timeStamp;
 	}		
 		
 	public static List<String> readInputFile (String filename) throws IOException{//read and cache all commands in a list
 		InputStreamReader reader = new InputStreamReader(new FileInputStream(filename));
-        BufferedReader f = new BufferedReader(reader);  
-        String line = "";   
-        while (true){  //line != null
-            line = f.readLine();
-            if (line == null){
-            	break;
+                BufferedReader f = new BufferedReader(reader);  
+                String line = "";   
+        	while (true){  //line != null
+            	        line = f.readLine();
+            	if (line == null){
+            		break;
             }
             inputs.add(line);
         } 
