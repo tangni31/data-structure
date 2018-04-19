@@ -21,14 +21,14 @@ public class jobscheduler {
 	static MinHeapNode[] arr = new MinHeapNode[] {}; 
 	static MinHeap<Integer> minHeapRound0 = new MinHeap<Integer>(arr); //initialize min-heap   
 	static MinHeap<Integer> minHeapRound1 = new MinHeap<Integer>(arr);//there are 2 rounds, one job finished 5ms will send to another round
-    static int currentRound = 0;	//current is 0 or 1
-    public static File outputFile;	//out_file.txt
-    public static BufferedWriter output;
-    static MinHeapNode<Integer> currentRunNode = null;
-    static String crlf=System.getProperty("line.separator");//make sure line separator works correct in both Linux and windows
-    static int totalJobTime = 0; //total time need to finished all jobs.
-    public static List<Integer> insertIdList = new ArrayList<Integer>();
-    public static List<Integer> insertTimeList = new ArrayList<Integer>();
+        static int currentRound = 0;	//current is 0 or 1
+        public static File outputFile;	//out_file.txt
+        public static BufferedWriter output;
+        static MinHeapNode<Integer> currentRunNode = null;
+        static String crlf=System.getProperty("line.separator");//make sure line separator works correct in both Linux and windows
+        static int totalJobTime = 0; //total time need to finished all jobs.
+        public static List<Integer> insertIdList = new ArrayList<Integer>();
+        public static List<Integer> insertTimeList = new ArrayList<Integer>();
     
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub  
@@ -146,7 +146,7 @@ public class jobscheduler {
 			RBTree.remove((int)(currentRunNode.getInfo().get(0))); //remove from RBT			
 			currentRoundHeap.deleMin();//remove from minHeap			
 			getNewJob = true;
-			currentRunNode = null;/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			currentRunNode = null;
 			
 		}
 		else if (currentRunNode.excutedTimePreRound >= 5){ //executed 5 ms, move to another round		
@@ -175,7 +175,7 @@ public class jobscheduler {
 	     }
 		
 		else { 				//NextJob(x),PreviousJob(x),PrintJob(x) have one parameter.
-	    	 String pattern = "(\\(\\d+)";
+	    	     String pattern = "(\\(\\d+)";
 		     Pattern r = Pattern.compile(pattern);		      
 		     Matcher m = r.matcher(line);
 		     m.find();
@@ -251,7 +251,7 @@ public class jobscheduler {
 }
 
 class RBTNode<AnyType> {
-	public boolean color;        //color
+    public boolean color;        //color
     private Integer jobId;   //jobid
     public RBTNode<AnyType> left;    // leftchild
     public RBTNode<AnyType> right;    // rightchild
@@ -259,12 +259,12 @@ class RBTNode<AnyType> {
     private MinHeapNode<Integer> heapNode;
     
     public RBTNode(Integer jobId, boolean color,MinHeapNode<Integer> heapNode, RBTNode<AnyType> parent, RBTNode<AnyType> left, RBTNode<AnyType> right) {
-        this.jobId = jobId;
-        this.color = color;
-        this.parent = parent;
-        this.left = left;
-        this.right = right;
-        this.heapNode = heapNode;
+    this.jobId = jobId;
+    this.color = color;
+    this.parent = parent;
+    this.left = left;
+    this.right = right;
+    this.heapNode = heapNode;
     }
  
     public Integer getValue() {
@@ -422,8 +422,7 @@ class RBTree<AnyType> {
     	RBTNode<AnyType> nodeLarge = null; //right child
     	//if node < i, try its right child:
     	if (node != null){ //make sure node is not empty   		
-    		if ((int)node.getValue()< (int)i){//
-    			
+    		if ((int)node.getValue()< (int)i){//			
     			nodeLarge = node.right;//right child
     			if (nodeLarge != null){
     				if ((int)nodeLarge.getValue()<= (int)j && (int)nodeLarge.getValue() >= (int)i && nodeList.contains(nodeLarge)==false){
