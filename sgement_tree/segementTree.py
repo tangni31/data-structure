@@ -58,7 +58,7 @@ class segmentTree(object):
             p = ""
             for i in l:
                 s,e,v = i.start,i.end,i.sum
-                p+="["+str(s)+","+str(e)+"]"+"sum:"+str(v)+"  "
+                p+="["+str(s)+","+str(e)+")"+"sum:"+str(v)+"  "
             print (p)
             sub = []
             for n in l:
