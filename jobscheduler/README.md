@@ -5,7 +5,7 @@
 This is a simple jobscheduler for operating system. When the processor becomes free, the scheduler will assign to it a job that has been run for the least amount of time so far. This job will run for the smaller of 5ms and the amount of remaining time it needs to complete. In case the job does not complete in 5ms it becomes a candidate for the next scheduling round. The scheduler contains a `min heap` and a `Red Black Tree`. Detailed information please see: [Project_SP18.pdf](https://github.com/tangni31/data-structure/blob/master/jobscheduler/Project_SP18.pdf)      
     
 ## Overall Architecture     
-The program mainly has 3 parts: `jobscheduler`, `RBTre`e and `Min-heap`. It has 5 class: `class jobscheduler`; `class
+The program mainly has 3 parts: `jobscheduler`, `RBTree` and `Min-heap`. It has 5 class: `class jobscheduler`; `class
 RBTree`, `class RBtreeNode`, `class MinHeap` and `class MinheapNode`.   
 <img width="550" height="350" src="https://github.com/tangni31/data-structure/blob/master/jobscheduler/architecture.png?raw=true"/>    
 As figure above, `jobscheduler` reads commands from input file and runs commands in input file, schedule job running and output a file contains all output information. `RBTreeNode` stores jobID and a pointer to corresponding minheap node, the key of RBTree is jobID. `MinHeapNode` stores jobID, executedTime and totalTime. Since jobID won’t change during the whole process, MinHeapNode doesn’t need to store a pointer to RBTreeNode, it just need to store an integer value jobID, the key of MinHeap is the executedTime.
