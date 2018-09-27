@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
 public class jobscheduler {
 	public static List<String> inputs = new ArrayList<String>(); //a list saves all inputs
 	public static RBTree<Integer> RBTree = new  RBTree<Integer>();//initialize RBTree
@@ -19,13 +18,15 @@ public class jobscheduler {
 	static int idleTime = 0;//total time that no job running
 	@SuppressWarnings("rawtypes")
 	static MinHeapNode[] arr = new MinHeapNode[] {}; 
-	static MinHeap<Integer> minHeapRound0 = new MinHeap<Integer>(arr); //initialize min-heap   
-	static MinHeap<Integer> minHeapRound1 = new MinHeap<Integer>(arr);//there are 2 rounds, one job finished 5ms will send to another round
+	static MinHeap<Integer> minHeapRound0 = new MinHeap<Integer>(arr); //initialize min-heap 
+	//there are 2 rounds, one job finished 5ms will send to another round
+	static MinHeap<Integer> minHeapRound1 = new MinHeap<Integer>(arr);
         static int currentRound = 0;	//current is 0 or 1
         public static File outputFile;	//out_file.txt
         public static BufferedWriter output;
         static MinHeapNode<Integer> currentRunNode = null;
-        static String crlf=System.getProperty("line.separator");//make sure line separator works correct in both Linux and windows
+	//make sure line separator works correct in both Linux and windows
+        static String crlf=System.getProperty("line.separator");
         static int totalJobTime = 0; //total time need to finished all jobs.
         public static List<Integer> insertIdList = new ArrayList<Integer>();
         public static List<Integer> insertTimeList = new ArrayList<Integer>();
@@ -44,9 +45,11 @@ public class jobscheduler {
 			if (!inputs.isEmpty()){
 				String line = inputs.get(0); //get first command
 				int time = getTimeStamp(line); //get first command's time stamp
-				if (clock == time){	//read the input command only when the global time matches the time in the input command
+				//read the input command only when the global time matches the time in the input command
+				if (clock == time){	
 					doInputCommand(line);
-					inputs.remove(0);//after finished processing command, delete it from inputs			
+					//after finished processing command, delete it from inputs
+					inputs.remove(0);			
 				}					
 			}
 			insertJob();
@@ -62,7 +65,6 @@ public class jobscheduler {
 			}
 		}
 	}
-	
 
 	public static int getTimeStamp(String line){//get time stamp by using regular expression
 	    String pattern = "(\\d+)";
@@ -88,10 +90,11 @@ public class jobscheduler {
 		return inputs;
 	}
 	
-	public static void insertJob(){ //when a job is running, can't insert new jobs into data structures, need to wait
+	public static void insertJob(){ 
+		//when a job is running, can't insert new jobs into data structures, need to wait
 		if (!insertIdList.isEmpty()){ //has some jobs need to be inserted
-			if (currentRunNode==null || currentRunNode.excutedTimePreRound==0 || currentRunNode.excutedTimePreRound==5 ){//no job is running, insert			 		   
-				
+			//no job is running, insert
+			if (currentRunNode==null || currentRunNode.excutedTimePreRound==0 || currentRunNode.excutedTimePreRound==5 ){			 		   
 					int id = insertIdList.get(0);
 					int time = insertTimeList.get(0);
 				
@@ -105,13 +108,11 @@ public class jobscheduler {
 					}
 					insertIdList.remove(0);
 					insertTimeList.remove(0);
-				
 			}
 		}
 	}
 	
 	public static void runJobs(){
-		
 		MinHeap<Integer> currentRoundHeap;
 		MinHeap<Integer> otherRoundHeap;
 		if (currentRound == 0){
@@ -123,8 +124,7 @@ public class jobscheduler {
 				if (minHeapRound1.isEmpty()){ //no jobs in round0, change to round1
 					currentRound = 0;
 				}
-		}
-			
+		}	
 		if (currentRound == 0){
 			currentRoundHeap = minHeapRound0;
 			otherRoundHeap = minHeapRound1;
@@ -133,23 +133,23 @@ public class jobscheduler {
 			currentRoundHeap = minHeapRound1;
 			otherRoundHeap = minHeapRound0;
 		}
-		
-		if (getNewJob){ //can switch only after a job run 5ms or previous job finished execution or current running job =null			
+		if (getNewJob){ 
+		/*can switch only after a job run 5ms or previous job 
+		 *finished execution or current running job =null
+		*/
 			currentRunNode = currentRoundHeap.getMin();			
 			getNewJob = false;			
 		}	
-		
 		currentRunNode.run(); //job runs for 1 ms	
-		
 		//int remainTime = currentRunNode.getRemainTime();
 		if (currentRunNode.getRemainTime() <= 0){	//job finished 
 			RBTree.remove((int)(currentRunNode.getInfo().get(0))); //remove from RBT			
 			currentRoundHeap.deleMin();//remove from minHeap			
 			getNewJob = true;
-			currentRunNode = null;
-			
+			currentRunNode = null;	
 		}
-		else if (currentRunNode.excutedTimePreRound >= 5){ //executed 5 ms, move to another round		
+		//executed 5 ms, move to another round
+		else if (currentRunNode.excutedTimePreRound >= 5){ 		
 			currentRoundHeap.deleMin();
 			currentRunNode.excutedTimePreRound = 0;
 			otherRoundHeap.insert(currentRunNode);
@@ -157,41 +157,41 @@ public class jobscheduler {
 		}			
 	}
 	
-	
-	public static void doInputCommand (String line) throws IOException{ //insert a job when global time is equal to arrival time
+	//insert a job when global time is equal to arrival time
+	public static void doInputCommand (String line) throws IOException{ 
 		int jobId = 0;
-		int parameter1 = 0; //parameter1 & 2 represent 2 numbers in command  eg. insert(5,25)
+		//parameter1 & 2 represent 2 numbers in command  eg. insert(5,25)
+		int parameter1 = 0; 
 		int parameter2 = 0;
-		
-		if (line.contains("Insert") || (line.contains(",") && line.contains("Print"))  ){ //only InsertJob(x,y) & PrintJob(x,y) have 2 parameters
-	    	 String pattern = "(\\(\\d+)(,\\d+)"; //using regular expression to get 2 parameters
-	    	 Pattern r = Pattern.compile(pattern);
-	    	 Matcher m = r.matcher(line);
-	    	 m.find();
-	    	 String num1 = m.group(1);	    	
-	    	 parameter1 = Integer.parseInt(num1.replace("(",""));
-	    	 String num2 = m.group(2);
-	    	 parameter2 = Integer.parseInt(num2.replace(",",""));
-	     }
-		
-		else { 				//NextJob(x),PreviousJob(x),PrintJob(x) have one parameter.
-	    	     String pattern = "(\\(\\d+)";
-		     Pattern r = Pattern.compile(pattern);		      
-		     Matcher m = r.matcher(line);
-		     m.find();
-		     String num1 = m.group(1);
-		     jobId = Integer.parseInt(num1.replace("(",""));     
-	     }
-	     
-		if (line.contains("Insert")){  		 //InsertJob(x,y)
+		//only InsertJob(x,y) & PrintJob(x,y) have 2 parameters
+		if (line.contains("Insert") || (line.contains(",") && line.contains("Print"))  ){ 
+	    		String pattern = "(\\(\\d+)(,\\d+)"; //using regular expression to get 2 parameters
+	    		Pattern r = Pattern.compile(pattern);
+	    	 	Matcher m = r.matcher(line);
+	    	 	m.find();
+	    	 	String num1 = m.group(1);	    	
+	    	 	parameter1 = Integer.parseInt(num1.replace("(",""));
+	    	 	String num2 = m.group(2);
+	    	 	parameter2 = Integer.parseInt(num2.replace(",",""));
+	     	}
+		else { 	//NextJob(x),PreviousJob(x),PrintJob(x) have one parameter.
+	    		String pattern = "(\\(\\d+)";
+		     	Pattern r = Pattern.compile(pattern);		      
+		     	Matcher m = r.matcher(line);
+		     	m.find();
+		     	String num1 = m.group(1);
+		     	jobId = Integer.parseInt(num1.replace("(",""));     
+	     	}
+		if (line.contains("Insert")){  //InsertJob(x,y)
 			totalJobTime += parameter2; //add time to totalJobTime
 			insertIdList.add(parameter1);//add insert job to waiting list
 			insertTimeList.add(parameter2);
 		}
-		else if (line.contains("Print") && line.contains(",")){ 	//PrintJob(x,y)
+		else if (line.contains("Print") && line.contains(",")){ //PrintJob(x,y)
 			List<RBTNode<Integer>> nodeList = new ArrayList<RBTNode<Integer>>();
-			nodeList = RBTree.getRange(parameter1, parameter2, RBTree.getRoot());//getRange return a list contains all jobs in the range
-			if(nodeList.size()==0){		//no such jobs, print (0,0,0)
+			//getRange return a list contains all jobs in the range
+			nodeList = RBTree.getRange(parameter1, parameter2, RBTree.getRoot());
+			if(nodeList.size()==0){  //no such jobs, print (0,0,0)
 				output.write("(0,0,0)"+crlf);
 				output.flush();
 				//System.out.println("(0,0,0)");
@@ -201,7 +201,8 @@ public class jobscheduler {
 				for(int i=0; i<nodeList.size(); i++)    {   
 					RBTNode<Integer> job = nodeList.get(i);
 					List<Integer> info = job.getHeapNode().getInfo();
-					String lines = "(" + info.get(0) + "," +  info.get(1) + "," +  info.get(2) + ")" + ",";
+					String lines = "(" + info.get(0) + "," +  info.get(1) 
+						+ "," +  info.get(2) + ")" + ",";
 					sb.append(lines);
 				}
 				sb.deleteCharAt(sb.length()-1); //delete last ";"
@@ -210,7 +211,8 @@ public class jobscheduler {
 				//System.out.println(sb);
 			}
 		}
-		else if (line.contains("Previous") || line.contains("Next")){ //PreviousJob(x) & NextJob(x) 
+		//PreviousJob(x) & NextJob(x)
+		else if (line.contains("Previous") || line.contains("Next")){  
 			RBTNode<Integer> Job;
 			if (line.contains("Previous")){
 				Job = RBTree.getPrevious(jobId);
@@ -223,9 +225,10 @@ public class jobscheduler {
 				output.write("(0,0,0)"+crlf);
 				output.flush();
 			}
-			else{
-				List<Integer> info = Job.getHeapNode().getInfo(); //get job's information and print
-				String line1 = "(" + info.get(0) + "," +  info.get(1) + "," +  info.get(2) + ")";
+			else{   //get job's information and print
+				List<Integer> info = Job.getHeapNode().getInfo(); 
+				String line1 = "(" + info.get(0) + "," +  
+					info.get(1) + "," +  info.get(2) + ")";
 				//System.out.println(line1);
 				output.write(line1+crlf);
 				output.flush();
@@ -240,15 +243,16 @@ public class jobscheduler {
 			}
 			else{
 				List<Integer> info = Job.getHeapNode().getInfo();
-				String line2 = "(" + info.get(0) + "," +  info.get(1) + "," +  info.get(2) + ")";
+				String line2 = "(" + info.get(0) + "," +  info.get(1) 
+					+ "," +  info.get(2) + ")";
 				output.write(line2+crlf);
 				output.flush();
 				//System.out.println(line2);
 			}
 		}
-		
 	}		
 }
+
 
 class RBTNode<AnyType> {
     public boolean color;        //color
@@ -258,7 +262,9 @@ class RBTNode<AnyType> {
     public RBTNode<AnyType> parent;    //parent
     private MinHeapNode<Integer> heapNode;
     
-    public RBTNode(Integer jobId, boolean color,MinHeapNode<Integer> heapNode, RBTNode<AnyType> parent, RBTNode<AnyType> left, RBTNode<AnyType> right) {
+    public RBTNode(Integer jobId, boolean color,MinHeapNode<Integer> 
+		   heapNode, RBTNode<AnyType> parent, RBTNode<AnyType> 
+		   left, RBTNode<AnyType> right) {
     this.jobId = jobId;
     this.color = color;
     this.parent = parent;
@@ -332,7 +338,8 @@ class RBTree<AnyType> {
     		while(true){
     			temp = node;
     			if(node != null){
-    				if((int)node.getValue() < (int)i){	//node's value < jobId, search right child
+				//node's value < jobId, search right child
+    				if((int)node.getValue() < (int)i)
     					node = node.right;
     				}
     			}
@@ -340,12 +347,14 @@ class RBTree<AnyType> {
     				temp = node;
     			}
     			if (node != null){ 
-    				if((int)node.getValue() >= (int)i ){ //node's value >= jobId, search left child
+				//node's value >= jobId, search left child
+    				if((int)node.getValue() >= (int)i ){ 
     					node = node.left;
     				}
     			}
     			if (node == null){	//reach the bottom of the tree
-    				if((int)temp.getValue() < (int) i ){//if this node's value<index, this is the previousJob
+				//if this node's value<index, this is the previousJob
+    				if((int)temp.getValue() < (int) i ){
            			 	return temp;
            			 	}
     				else{	//if this node's value>=index, try its parent
@@ -353,17 +362,18 @@ class RBTree<AnyType> {
            			 	if (node == null){
            			 		return null;
            			 	}
-           			 	while ((int)node.getValue() >= (int) i){ //keep searching, until find a parent < i
+					//keep searching, until find a parent < i
+           			 	while ((int)node.getValue() >= (int) i){ 
            			 		node = node.parent;
            			 		if (node == null){
-           			 			return null; // i is the smallest node, return null
+							// i is the smallest node, return null
+           			 			return null; 
            			 		}	
            			 	}
            			 	return node;
     				}        	
     			}
     		}
-    	
     	}
     	else{
     		return null;//empty tree
@@ -377,7 +387,8 @@ class RBTree<AnyType> {
     		while(true){
     			temp = node;
     			if(node != null){
-    				if((int)node.getValue() <= (int)i){ //node's value <= jobId, search right child
+				//node's value <= jobId, search right child
+    				if((int)node.getValue() <= (int)i){ 
     					node = node.right;    	
     				}
     			}
@@ -385,12 +396,15 @@ class RBTree<AnyType> {
     				temp = node;
     			}
     			if (node != null){ 
-    				if((int)node.getValue() > (int)i ){	//node's value > jobId, search left child
+				//node's value > jobId, search left child
+    				if((int)node.getValue() > (int)i ){	
     					node = node.left;          	
     				}
     			}  
-    			if (node == null){	//reach the bottom of the tree, temp is the bottom node
-    				if((int)temp.getValue() > (int) i ){ //if this node's value>index, this is the nextJob
+			//reach the bottom of the tree, temp is the bottom node
+    			if (node == null){	
+				//if this node's value>index, this is the nextJob
+    				if((int)temp.getValue() > (int) i ){ 
            			 	return temp;
            			 }
     				else{ //if this node's value<=index, try its parent
@@ -398,10 +412,12 @@ class RBTree<AnyType> {
            			 	if (node == null){ //no parent
            			 		return null;
            			 	}
-           			 	while ((int)node.getValue() <= (int) i){ //keep searching, until find a parent >i
+					//keep searching, until find a parent >i
+           			 	while ((int)node.getValue() <= (int) i){ 
            			 		node = node.parent;
            			 		if (node == null){
-           			 			return null; // i is the largest node, return null
+							 // i is the largest node, return null
+           			 			return null;
            			 		}	
            			 	}
            			 	return node;
@@ -412,11 +428,12 @@ class RBTree<AnyType> {
     	else{
     		return null;
     	} 	
-    	
     }
-    
-    public  List<RBTNode<AnyType>>  getRange(Integer i, Integer j, RBTNode<AnyType> node){	//printJob(i,j)
-    	List<RBTNode<AnyType>> nodeList = new ArrayList<RBTNode<AnyType>>(); //use a list to store all the nodes in range(i,j)
+
+    //printJob(i,j)
+    public  List<RBTNode<AnyType>>  getRange(Integer i, Integer j, RBTNode<AnyType> node){	
+	//use a list to store all the nodes in range(i,j)
+    	List<RBTNode<AnyType>> nodeList = new ArrayList<RBTNode<AnyType>>(); 
     	List<RBTNode<AnyType>>listTemp = new ArrayList<RBTNode<AnyType>>();
     	RBTNode<AnyType> nodeSmall = null; //left child
     	RBTNode<AnyType> nodeLarge = null; //right child
@@ -425,7 +442,9 @@ class RBTree<AnyType> {
     		if ((int)node.getValue()< (int)i){//			
     			nodeLarge = node.right;//right child
     			if (nodeLarge != null){
-    				if ((int)nodeLarge.getValue()<= (int)j && (int)nodeLarge.getValue() >= (int)i && nodeList.contains(nodeLarge)==false){
+    				if ((int)nodeLarge.getValue()<= (int)j && 
+				    (int)nodeLarge.getValue() >= (int)i && 
+				    nodeList.contains(nodeLarge)==false){
         					nodeList.add(nodeLarge);
         				}
     				listTemp = getRange(i, j, nodeLarge);
@@ -437,7 +456,9 @@ class RBTree<AnyType> {
     		if ((int)node.getValue() > (int)j){  
     			nodeSmall = node.left; //left child
     			if (nodeSmall != null){
-    				if ((int)nodeSmall.getValue()<= (int)j && (int)nodeSmall.getValue() >= (int)i && nodeList.contains(nodeSmall)==false){
+    				if ((int)nodeSmall.getValue()<= (int)j && 
+				    (int)nodeSmall.getValue() >= (int)i && 
+				    nodeList.contains(nodeSmall)==false){
         					nodeList.add(nodeSmall);
     				}
     				listTemp = getRange(i, j, nodeSmall);//search its child
@@ -452,9 +473,10 @@ class RBTree<AnyType> {
     			}
     			nodeSmall = node.left;//search left child
     			if (nodeSmall != null){
-    				if ((int)nodeSmall.getValue()<= (int)j && (int)nodeSmall.getValue() >= (int)i ){ //in range
+    				if ((int)nodeSmall.getValue()<= (int)j && 
+				    (int)nodeSmall.getValue() >= (int)i ){ //in range
     					if (nodeList.contains(nodeSmall)==false){
-    						nodeList.add(nodeSmall);	//add into list
+    						nodeList.add(nodeSmall);//add into list
     					}
     				}
     					listTemp = getRange(i, j, nodeSmall); //search its child
@@ -464,12 +486,13 @@ class RBTree<AnyType> {
     			}
     			nodeLarge = node.right;//search right child
     			if (nodeLarge != null){
-    				if ((int)nodeLarge.getValue()<= (int)j && (int)nodeLarge.getValue() >= (int)i ){
+    				if ((int)nodeLarge.getValue()<= (int)j && 
+				    (int)nodeLarge.getValue() >= (int)i ){
     					if (nodeList.contains(nodeLarge)==false){
     						nodeList.add(nodeLarge);
     					}
-    				}
-    					listTemp = getRange(i, j, nodeLarge);//search its child
+    				}	//search its child
+    					listTemp = getRange(i, j, nodeLarge);
     					nodeList.removeAll(listTemp);
     					nodeList.addAll(listTemp);   				
     			}
@@ -478,25 +501,28 @@ class RBTree<AnyType> {
     	return 	nodeList;   		
   }
     
-    public RBTNode<AnyType> getNode(Integer jobId){ //input a jobId, return RBTree node
+    //input a jobId, return RBTree node
+    public RBTNode<AnyType> getNode(Integer jobId){ 
     	RBTNode<AnyType> node = getRoot(); //Search from root
     	if (node==null){	//empty tree
     		return null;
     	}
-    	else{   		
-    		while((int)node.getValue() != (int)jobId){	//node's value != jobId, keep searching
-             		if ((int)node.getValue() < (int)jobId){ //node's value < jobId, search right child
+    	else{   //node's value != jobId, keep searching		
+    		while((int)node.getValue() != (int)jobId){
+			//node's value < jobId, search right child
+             		if ((int)node.getValue() < (int)jobId){ 
                  		node = node.right;
 				if (node==null){//no such job
 					return null;
 				}
              		}
-             	else if((int)node.getValue() > (int)jobId){  //node's value > jobId, search left child
+			//node's value > jobId, search left child
+             		else if((int)node.getValue() > (int)jobId){  
             		 	node = node.left;
             		 	if (node==null){//no such job
             		 		return null;
             		 	}
-             	}
+             		}
     		}
     	}
     	return node;
@@ -512,7 +538,7 @@ class RBTree<AnyType> {
         if (node.parent == null) {
             this.root = rightchild;   // if node's parent is empty, set node's right child = new root
         } else {
-            if (node.parent.left == node)	//if node is its parent's left child
+            if (node.parent.left == node) //if node is its parent's left child
             	node.parent.left = rightchild;   // set node's right child = node's parent's new left child
             else							// if node is its parent's right child
             	node.parent.right = rightchild;    //set node's right child = node's parent's new right child
@@ -535,7 +561,7 @@ class RBTree<AnyType> {
         } else {
             if (node == node.parent.right)	//if node is its parent's rightchild
             	node.parent.right = leftchild;    // set node's parent's new rightchild = node's leftchild
-            else									//if node is its parent's leftchild            	   
+            else	//if node is its parent's leftchild            	   
             	node.parent.left = leftchild;    // set node's parent's new leftchild = node's leftchild
         }
         leftchild.right = node; //node's leftchild's new rightchild = node
@@ -855,10 +881,12 @@ class MinHeap<AnyType> {
     }  
     
     public void insert(MinHeapNode<AnyType> newNode) {  //insert a job
-        if (currentSize >= heap.length - 1)  
-           increaseArray(heap.length * 2 + 1); //array doubling whenever the current capacity is exceeded
+        if (currentSize >= heap.length - 1) 
+	   //array doubling whenever the current capacity is exceeded
+           increaseArray(heap.length * 2 + 1); 
         int nodeIndex = ++currentSize; 
-        while (nodeIndex > 1 && newNode.getTime() < heap[nodeIndex / 2].getTime()) { //search from bottom to top to find place insert new node
+	//search from bottom to top to find place insert new node
+        while (nodeIndex > 1 && newNode.getTime() < heap[nodeIndex / 2].getTime()) { 
         	heap[nodeIndex] = heap[nodeIndex / 2];  
             nodeIndex /= 2;  
         }  
