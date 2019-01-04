@@ -1,4 +1,4 @@
 all:
-	javac jobscheduler.java
+	javac Jobscheduler.java
 clean:
 	rm *.class
